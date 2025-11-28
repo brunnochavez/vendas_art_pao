@@ -241,7 +241,6 @@
   </div>
 
   <script>
-    // nomes dos arquivos CSV da loja Ilha
     const arquivosPorMes = {
       "setembro_2025": "setembro_2025_ilha.csv",
       "outubro_2025": "outubro_2025_ilha.csv",
@@ -266,10 +265,11 @@
       return isNaN(n) ? 0 : n;
     }
 
+    // CSV com separador ';'
     function parseCSV(texto) {
       const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
       if (!linhas.length) return [];
-      const sep = ",";
+      const sep = ";";
       const cab = linhas[0]
         .split(sep)
         .map(c => c.trim().replace(/^"|"$/g, ""));
@@ -292,7 +292,7 @@
       return { nome, conteudo: texto };
     }
 
-    // Cabeçalho: Descrição, Qtd Entr, Vlr Entr, Qtd Saídas, Vlr Saídas, R$ Atual
+    // Cabeçalho: Descrição;Qtd Entr;Vlr Entr;Qtd Saídas;Vlr Saídas;R$ Atual
     function consolidarProdutosDeUmArquivo(dadoArquivo) {
       const mapa = new Map();
       const linhas = parseCSV(dadoArquivo.conteudo);
@@ -382,9 +382,9 @@
       const valor = document.querySelector('input[name="filtroVenda"]:checked').value;
       let lista = produtosBase;
       if (valor === "com-venda") {
-        lista = produtosBase.filter(p => p.qtdSaidas > 0 || p.vlrSaidas > 0);
+        lista = produtosBase.filter(p => p.vlrSaidas > 0 || p.qtdSaidas > 0);
       } else if (valor === "sem-venda") {
-        lista = produtosBase.filter(p => p.qtdSaidas === 0 && p.vlrSaidas === 0);
+        lista = produtosBase.filter(p => p.vlrSaidas === 0 && p.qtdSaidas === 0);
       }
       preencherTabela(lista);
     }
@@ -420,7 +420,6 @@
         `;
 
         aplicarFiltro();
-
         preencherRanking(topValorBody, produtosBase.filter(p => p.vlrSaidas > 0), "vlrSaidas", false);
         preencherRanking(topQtdBody, produtosBase.filter(p => p.qtdSaidas > 0), "qtdSaidas", false);
         preencherRanking(bottomValorBody, produtosBase, "vlrSaidas", true);
@@ -455,3 +454,4 @@
   </script>
 </body>
 </html>
+
