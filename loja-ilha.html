@@ -241,7 +241,7 @@
   </div>
 
   <script>
-    // Meses → arquivos CSV da loja Ilha
+    // nomes exatos dos CSV já publicados
     const arquivosPorMes = {
       "setembro_2025": "setembro_2025_ilha.csv",
       "outubro_2025": "outubro_2025_ilha.csv",
@@ -266,15 +266,22 @@
       return isNaN(n) ? 0 : n;
     }
 
+    // CSV com vírgula e aspas
     function parseCSV(texto) {
       const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
       if (!linhas.length) return [];
-      const sep = linhas[0].includes(";") ? ";" : ",";
-      const cab = linhas[0].split(sep).map(c => c.trim());
+      const sep = ",";
+      const cab = linhas[0]
+        .split(sep)
+        .map(c => c.trim().replace(/^"|"$/g, ""));
       return linhas.slice(1).map(l => {
+        if (!l.trim()) return {};
         const cols = l.split(sep);
         const obj = {};
-        cab.forEach((nome, i) => obj[nome] = (cols[i] || "").trim());
+        cab.forEach((nome, i) => {
+          const valor = (cols[i] || "").trim().replace(/^"|"$/g, "");
+          obj[nome] = valor;
+        });
         return obj;
       });
     }
@@ -286,34 +293,30 @@
       return { nome, conteudo: texto };
     }
 
-    // ATENÇÃO: adapta para o cabeçalho real dos seus CSV:
-    // Descrição,QTd Entr,Vlr Entr,Vlr Saídas,R$ Atual
+    // cabeçalho real: Descrição,QTd Entr,Vlr Entr,Vlr Saídas,R$ Atual
     function consolidarProdutosDeUmArquivo(dadoArquivo) {
       const mapa = new Map();
       const linhas = parseCSV(dadoArquivo.conteudo);
       linhas.forEach(linha => {
         const desc = (linha["Descrição"] || linha["Descricao"] || "").trim();
         if (!desc) return;
-
-        const codigo = ""; // não existe código no CSV
-        const qtdEntr = parseNumeroBr(linha["QTd Entr"] || linha["Qtd Entr"]);
+        const codigo = "";
+        const qtdEntr   = parseNumeroBr(linha["QTd Entr"] || linha["QTD Entr"] || linha["Qtd Entr"]);
         const vlrSaidas = parseNumeroBr(linha["Vlr Saídas"] || linha["Vlr Saidas"]);
         const precoAtual = parseNumeroBr(linha["R$ Atual"] || linha["R$ Atual "]);
-
         const chave = codigo + "|" + desc;
         if (!mapa.has(chave)) {
           mapa.set(chave, {
             codigo,
             descricao: desc,
             qtdEntr: 0,
-            qtdSaidas: 0,     // não há coluna de quantidade de saída
+            qtdSaidas: 0,
             vlrSaidas: 0,
             precoAtual: precoAtual || 0
           });
         }
         const p = mapa.get(chave);
-        p.qtdEntr += qtdEntr;
-        // p.qtdSaidas permanece 0 (sem informação nos CSV atuais)
+        p.qtdEntr   += qtdEntr;
         p.vlrSaidas += vlrSaidas;
         if (!p.precoAtual && precoAtual) p.precoAtual = precoAtual;
       });
@@ -388,32 +391,24 @@
     async function carregarMes(chaveMes) {
       const arquivo = arquivosPorMes[chaveMes];
       if (!arquivo) return;
-
       resumoLoja.textContent = "Carregando dados de " + labelMes(chaveMes) + "...";
-
       try {
         const dado = await carregarArquivo(arquivo);
         produtosBase = consolidarProdutosDeUmArquivo(dado);
-
         const total = produtosBase.length;
         const comVenda = produtosBase.filter(p => p.vlrSaidas > 0).length;
         const semVenda = total - comVenda;
         const somaVlr = produtosBase.reduce((acc, p) => acc + p.vlrSaidas, 0);
-
         resumoLoja.textContent =
           `Mês: ${labelMes(chaveMes)} • Arquivo: ${arquivo} • ` +
           `${total} produtos, ${comVenda} com vendas e ${semVenda} sem vendas.`;
-
         chipsInfo.innerHTML = `
           <span class="chip">Total produtos: ${total}</span>
           <span class="chip">Com vendas: ${comVenda}</span>
           <span class="chip">Sem vendas: ${semVenda}</span>
           <span class="chip">Total em vendas (R$): ${formatNumeroBr(somaVlr)}</span>
         `;
-
-        aplicarFiltro(); // tabela principal
-
-        // rankings (por valor funcionam; por quantidade ficarão zerados enquanto não houver qtd de saída)
+        aplicarFiltro();
         preencherRanking(topValorBody, produtosBase.filter(p => p.vlrSaidas > 0), "vlrSaidas", false);
         preencherRanking(topQtdBody, produtosBase, "qtdSaidas", false);
         preencherRanking(bottomValorBody, produtosBase, "vlrSaidas", true);
@@ -433,13 +428,11 @@
         opt.textContent = labelMes(chave);
         mesSelect.appendChild(opt);
       });
-
       const primeiraChave = Object.keys(arquivosPorMes)[0];
       if (primeiraChave) {
         mesSelect.value = primeiraChave;
         carregarMes(primeiraChave);
       }
-
       mesSelect.addEventListener("change", () => {
         const chave = mesSelect.value;
         if (chave) carregarMes(chave);
