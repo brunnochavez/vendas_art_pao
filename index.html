@@ -100,9 +100,7 @@
       margin-bottom: 10px;
     }
 
-    .intro-title span {
-      color: #f97373;
-    }
+    .intro-title span { color: #f97373; }
 
     .intro-subtitle {
       font-size: 0.95rem;
@@ -162,9 +160,7 @@
       pointer-events: none;
     }
 
-    .store-card:hover::before {
-      opacity: 1;
-    }
+    .store-card:hover::before { opacity: 1; }
 
     .store-card:hover {
       transform: translateY(-3px);
@@ -194,10 +190,7 @@
       color: #fecaca;
     }
 
-    .store-cta svg {
-      width: 14px;
-      height: 14px;
-    }
+    .store-cta svg { width: 14px; height: 14px; }
 
     .hint {
       margin-top: 16px;
@@ -259,12 +252,8 @@
     }
 
     @media (max-width: 768px) {
-      main {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .store-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
+      main { grid-template-columns: minmax(0, 1fr); }
+      .store-grid { grid-template-columns: minmax(0, 1fr); }
     }
   </style>
 </head>
@@ -289,7 +278,7 @@
           Escolha a <span>loja</span> para visualizar os relatórios.
         </h2>
         <p class="intro-subtitle">
-          Cada loja possui sua própria página de relatórios, que consolida as vendas por produto a partir dos arquivos mensal_2025_loja.csv.
+          Cada loja possui sua própria página de relatórios, que consolida as vendas por produto a partir de arquivos de>mes_2025_loja.csv</code>.
         </p>
 
         <div class="badge-row">
@@ -298,7 +287,6 @@
         </div>
 
         <div class="store-grid">
-          <!-- Loja Araçás -->
           <a class="store-card" href="loja-aracas.html">
             <div class="store-name">Loja Araçás</div>
             <div class="store-meta">
@@ -314,11 +302,10 @@
             </div>
           </a>
 
-          <!-- Lojas Ilha dos Bentos -->
           <a class="store-card" href="loja-ilha.html">
             <div class="store-name">Lojas Ilha dos Bentos</div>
             <div class="store-meta">
-              Consulte vendas por produto a partir dos arquivos setembro_2025_ilha.csv, outubro_2025_ilha.csv, novembro_2025_ilha.csv, etc.
+              Usa arquivos setembro_2025_ilha.csv, outubro_2025_ilha.csv, novembro_2025_ilha.csv, etc.
             </div>
             <div class="store-cta">
               Acessar relatórios
@@ -332,15 +319,13 @@
         </div>
 
         <p class="hint">
-          Dica: mantenha os arquivos CSV na mesma pasta das páginas de cada loja, seguindo o padrão
-          de>mes_2025_nome_da_loja.csv</code>, para facilitar a manutenção.
+          Mantenha os arquivos CSV na mesma pasta destas páginas, seguindo o padrão
+          de>mes_2025_nome_da_loja.csv</code>.
         </p>
       </section>
 
       <aside class="hero-card" aria-label="Resumo do sistema">
-        <div class="hero-pill">
-          • Visão geral do painel
-        </div>
+        <div class="hero-pill">• Visão geral do painel</div>
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">Lojas configuradas</div>
@@ -360,7 +345,8 @@
           </div>
         </div>
         <p class="hero-note">
-          Ao clicar em cada loja, você será direcionado para a página específica, onde os arquivos CSV daquela unidade são carregados e transformados em relatórios de vendas, rankings de produtos e filtros de análise.
+          Ao clicar em cada loja, você será direcionado para a página específica,
+          onde os arquivos CSV daquela unidade são carregados e transformados em relatórios.
         </p>
       </aside>
     </main>
