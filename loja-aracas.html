@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loja Ilha dos Bentos - Relatórios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #f97373, #111827 55%, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 20px 22px 26px;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.95);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .title-block h1 { font-size: 1.25rem; margin-bottom: 4px; }
+    .title-block p { font-size: 0.85rem; color: #9ca3af; }
+    a.voltar {
+      font-size: 0.8rem;
+      color: #fecaca;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.4);
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1.5fr 1.2fr;
+      gap: 18px;
+    }
+    @media (max-width: 960px) {
+      main { grid-template-columns: 1fr; }
+    }
+    section {
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      padding: 14px 14px 16px;
+    }
+    section h2 { font-size: 1rem; margin-bottom: 8px; }
+    section h3 { font-size: 0.9rem; margin: 10px 0 4px; }
+    .summary { font-size: 0.8rem; color: #9ca3af; margin-bottom: 8px; }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+      margin: 6px 0 10px;
+    }
+    .filter-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+    }
+    .chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: #9ca3af;
+    }
+    .table-wrapper {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    th, td {
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 600;
+      color: #e5e7eb;
+      background: rgba(17,24,39,0.9);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tbody tr:nth-child(odd) { background: rgba(17,24,39,0.55); }
+    tbody tr:nth-child(even) { background: rgba(15,23,42,0.55); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-block">
+        <h1>Lojas Ilha dos Bentos – Relatórios de vendas</h1>
+        <p>Dados consolidados a partir dos arquivos setembro_2025_ilha.csv, outubro_2025_ilha.csv, novembro_2025_ilha.csv, etc.</p>
+      </div>
+      <a href="index.html" class="voltar">← Voltar para seleção de loja</a>
+    </header>
+
+    <main>
+      <section>
+        <h2>Vendas por produto</h2>
+        <p class="summary" id="resumoLoja">Carregando dados...</p>
+
+        <div class="filter-row">
+          <span>Filtro:</span>
+          <label>
+            <input type="radio" name="filtroVenda" value="todos" checked />
+            Todos
+          </label>
+          <label>
+            <input type="radio" name="filtroVenda" value="com-venda" />
+            Apenas com vendas
+          </label>
+          <label>
+            <input type="radio" name="filtroVenda" value="sem-venda" />
+            Sem vendas
+          </label>
+        </div>
+
+        <div class="chips" id="chipsInfo"></div>
+
+        <div class="table-wrapper">
+          <table id="tabelaTodos">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Descrição</th>
+                <th>Qtd Entr</th>
+                <th>Qtd Saídas</th>
+                <th>Vlr Saídas (R$)</th>
+                <th>R$ Atual</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Rankings (Top / Bottom 10)</h2>
+        <p class="summary">
+          Calculados sobre todos os meses carregados para a loja Ilha.
+        </p>
+
+        <h3>10 mais vendidos em valor</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="topValor">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Vlr Saídas (R$)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 mais vendidos em quantidade</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="topQtd">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Qtd Saídas</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 menos vendidos em valor</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="bottomValor">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Vlr Saídas (R$)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 menos vendidos em quantidade</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="bottomQtd">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Qtd Saídas</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // LISTA DE ARQUIVOS CSV PARA A LOJA ILHA – basta incluir novos meses aqui
+    const arquivosIlha = [
+      "setembro_2025_ilha.csv",
+      "outubro_2025_ilha.csv",
+      "novembro_2025_ilha.csv"
+    ];
+
+    function parseNumeroBr(valor) {
+      if (!valor) return 0;
+      const limpo = valor.toString().trim().replace(/\./g, "").replace(",", ".");
+      const n = parseFloat(limpo);
+      return isNaN(n) ? 0 : n;
+    }
+
+    function parseCSV(texto) {
+      const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
+      if (!linhas.length) return [];
+      const sep = linhas[0].includes(";") ? ";" : ",";
+      const cab = linhas[0].split(sep).map(c => c.trim());
+      return linhas.slice(1).map(l => {
+        const cols = l.split(sep);
+        const obj = {};
+        cab.forEach((nome, i) => obj[nome] = (cols[i] || "").trim());
+        return obj;
+      });
+    }
+
+    async function carregarTodosArquivos(listaNomes) {
+      const resultados = await Promise.all(
+        listaNomes.map(async nome => {
+          const resp = await fetch(nome);
+          if (!resp.ok) throw new Error("Erro ao carregar " + nome);
+          const texto = await resp.text();
+          return { nome, conteudo: texto };
+        })
+      );
+      return resultados;
+    }
+
+    function consolidarProdutos(dadosArquivos) {
+      const mapa = new Map();
+      dadosArquivos.forEach(({ nome, conteudo }) => {
+        const linhas = parseCSV(conteudo);
+        linhas.forEach(linha => {
+          const codigo = (linha["Código"] || linha["Codigo"] || "").trim();
+          const desc = (linha["Descrição"] || linha["Descricao"] || "").trim();
+          const qtdEntr = parseNumeroBr(linha["Qtd Entr"]);
+          const qtdSaidas = parseNumeroBr(linha["Qtd Saídas"] || linha["Qtd Saidas"]);
+          const vlrSaidas = parseNumeroBr(linha["Vlr Saídas"] || linha["Vlr Saidas"]);
+          const precoAtual = parseNumeroBr(linha["R$ Atual"] || linha["R$ Atual "]);
+
+          if (!codigo && !desc) return;
+          const chave = codigo + "|" + desc;
+          if (!mapa.has(chave)) {
+            mapa.set(chave, {
+              codigo,
+              descricao: desc,
+              qtdEntr: 0,
+              qtdSaidas: 0,
+              vlrSaidas: 0,
+              precoAtual: precoAtual || 0
+            });
+          }
+          const p = mapa.get(chave);
+          p.qtdEntr += qtdEntr;
+          p.qtdSaidas += qtdSaidas;
+          p.vlrSaidas += vlrSaidas;
+          if (!p.precoAtual && precoAtual) p.precoAtual = precoAtual;
+        });
+      });
+      return Array.from(mapa.values());
+    }
+
+    function formatNumeroBr(n) {
+      return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    const tabelaTodosBody = document.querySelector("#tabelaTodos tbody");
+    const resumoLoja = document.getElementById("resumoLoja");
+    const chipsInfo = document.getElementById("chipsInfo");
+    const topValorBody = document.querySelector("#topValor tbody");
+    const topQtdBody = document.querySelector("#topQtd tbody");
+    const bottomValorBody = document.querySelector("#bottomValor tbody");
+    const bottomQtdBody = document.querySelector("#bottomQtd tbody");
+
+    let produtosBase = [];
+
+    function preencherTabela(lista) {
+      tabelaTodosBody.innerHTML = "";
+      lista.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.codigo}</td>
+          <td>${p.descricao}</td>
+          <td>${formatNumeroBr(p.qtdEntr)}</td>
+          <td>${formatNumeroBr(p.qtdSaidas)}</td>
+          <td>${formatNumeroBr(p.vlrSaidas)}</td>
+          <td>${formatNumeroBr(p.precoAtual)}</td>
+        `;
+        tabelaTodosBody.appendChild(tr);
+      });
+    }
+
+    function preencherRanking(tbody, lista, campo, asc) {
+      tbody.innerHTML = "";
+      const ordenado = [...lista].sort((a, b) =>
+        asc ? a[campo] - b[campo] : b[campo] - a[campo]
+      );
+      const top10 = ordenado.slice(0, 10);
+      top10.forEach((p, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${p.descricao}</td>
+          <td>${campo === "qtdSaidas"
+              ? formatNumeroBr(p.qtdSaidas)
+              : formatNumeroBr(p.vlrSaidas)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function aplicarFiltro() {
+      const valor = document.querySelector('input[name="filtroVenda"]:checked').value;
+      let lista = produtosBase;
+      if (valor === "com-venda") {
+        lista = produtosBase.filter(p => p.qtdSaidas > 0);
+      } else if (valor === "sem-venda") {
+        lista = produtosBase.filter(p => p.qtdSaidas === 0);
+      }
+      preencherTabela(lista);
+    }
+
+    Array.from(document.querySelectorAll('input[name="filtroVenda"]')).forEach(r => {
+      r.addEventListener("change", aplicarFiltro);
+    });
+
+    // Carrega tudo na entrada da página
+    (async function init() {
+      try {
+        const dados = await carregarTodosArquivos(arquivosIlha);
+        produtosBase = consolidarProdutos(dados);
+
+        const total = produtosBase.length;
+        const comVenda = produtosBase.filter(p => p.qtdSaidas > 0).length;
+        const semVenda = total - comVenda;
+        const somaVlr = produtosBase.reduce((acc, p) => acc + p.vlrSaidas, 0);
+
+        resumoLoja.textContent =
+          `Arquivos carregados: ${arquivosIlha.join(", ")} • ` +
+          `${total} produtos, ${comVenda} com vendas e ${semVenda} sem vendas.`;
+
+        chipsInfo.innerHTML = `
+          <span class="chip">Total produtos: ${total}</span>
+          <span class="chip">Com vendas: ${comVenda}</span>
+          <span class="chip">Sem vendas: ${semVenda}</span>
+          <span class="chip">Total em vendas (R$): ${formatNumeroBr(somaVlr)}</span>
+        `;
+
+        aplicarFiltro(); // preenche tabela principal
+        // rankings sempre sobre base completa
+        preencherRanking(topValorBody, produtosBase.filter(p => p.vlrSaidas > 0), "vlrSaidas", false);
+        preencherRanking(topQtdBody, produtosBase.filter(p => p.qtdSaidas > 0), "qtdSaidas", false);
+        preencherRanking(bottomValorBody, produtosBase, "vlrSaidas", true);
+        preencherRanking(bottomQtdBody, produtosBase, "qtdSaidas", true);
+      } catch (err) {
+        console.error(err);
+        resumoLoja.textContent = "Erro ao carregar arquivos CSV. Verifique se os nomes e caminhos estão corretos.";
+      }
+    })();
+  </script>
+</body>
+</html>
