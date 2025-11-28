@@ -2,12 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Relatório de vendas Art Pão - Multishow</title>
+  <title>Relatórios Art Pão - Multishow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" type="image/jpeg" href="ICON.jpg" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       min-height: 100vh;
@@ -17,338 +16,123 @@
       background: radial-gradient(circle at top left, #f97373, #111827 55%, #020617);
       color: #e5e7eb;
     }
-
-    .app-shell {
+    .shell {
       width: 100%;
-      max-width: 960px;
-      background: rgba(15, 23, 42, 0.92);
-      border-radius: 20px;
-      border: 1px solid rgba(148, 163, 184, 0.3);
-      box-shadow:
-        0 24px 60px rgba(15, 23, 42, 0.9),
-        0 0 0 1px rgba(15, 23, 42, 0.8);
-      padding: 28px 28px 32px;
-      backdrop-filter: blur(18px);
-      margin: 16px;
+      max-width: 640px;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 22px 22px 24px;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.95);
     }
-
     header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .brand-logo {
-      width: 44px;
-      height: 44px;
+    .logo {
+      width: 40px;
+      height: 40px;
       border-radius: 999px;
       overflow: hidden;
-      flex-shrink: 0;
-      border: 2px solid rgba(248, 113, 113, 0.9);
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.8);
+      border: 2px solid rgba(248, 113, 113, 0.8);
       background: #7f1d1d;
+      flex-shrink: 0;
     }
-
-    .brand-logo img {
+    .logo img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
-
-    .brand-text h1 {
-      font-size: 1.1rem;
+    .title h1 {
+      font-size: 1.05rem;
       font-weight: 600;
-      color: #e5e7eb;
     }
-
-    .brand-text p {
+    .title p {
       font-size: 0.8rem;
       color: #9ca3af;
     }
-
-    .tag {
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(127, 29, 29, 0.35);
-      color: #fecaca;
-      border: 1px solid rgba(248, 113, 113, 0.7);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    main {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 24px;
-      align-items: center;
-    }
-
-    .intro-title {
-      font-size: 1.7rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .intro-title span { color: #f97373; }
-
-    .intro-subtitle {
+    main h2 {
       font-size: 0.95rem;
-      color: #9ca3af;
-      margin-bottom: 18px;
-      max-width: 32rem;
+      margin-bottom: 8px;
     }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
-      font-size: 0.8rem;
-    }
-
-    .badge {
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(248, 113, 113, 0.6);
-      color: #fecaca;
-      background: rgba(30, 41, 59, 0.9);
-    }
-
-    .store-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 8px;
-    }
-
-    .store-card {
-      position: relative;
-      border-radius: 16px;
-      padding: 16px 14px 18px;
-      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.16), rgba(15, 23, 42, 0.96));
-      border: 1px solid rgba(248, 113, 113, 0.55);
-      cursor: pointer;
-      transition:
-        transform 140ms ease-out,
-        box-shadow 140ms ease-out,
-        border-color 140ms ease-out,
-        background 140ms ease-out;
-      overflow: hidden;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-
-    .store-card::before {
-      content: "";
-      position: absolute;
-      inset: -40%;
-      background: radial-gradient(circle at top, rgba(248, 113, 113, 0.25), transparent 55%);
-      opacity: 0;
-      transition: opacity 160ms ease-out;
-      pointer-events: none;
-    }
-
-    .store-card:hover::before { opacity: 1; }
-
-    .store-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(239, 68, 68, 0.95);
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
-      background: radial-gradient(circle at top left, rgba(248, 113, 113, 0.28), rgba(15, 23, 42, 0.96));
-    }
-
-    .store-name {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #e5e7eb;
-    }
-
-    .store-meta {
+    main p {
       font-size: 0.8rem;
       color: #9ca3af;
-      margin-bottom: 10px;
-    }
-
-    .store-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      color: #fecaca;
-    }
-
-    .store-cta svg { width: 14px; height: 14px; }
-
-    .hint {
-      margin-top: 16px;
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
-    .hero-card {
-      border-radius: 16px;
-      padding: 18px 16px 16px;
-      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(69, 10, 10, 0.98));
-      border: 1px solid rgba(248, 113, 113, 0.6);
-      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.95);
-    }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(127, 29, 29, 0.6);
-      color: #fecaca;
-      font-size: 0.75rem;
-      margin-bottom: 12px;
-    }
-
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      font-size: 0.8rem;
       margin-bottom: 14px;
     }
-
-    .metric {
-      padding: 8px 9px;
-      border-radius: 12px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(127, 29, 29, 0.9);
-    }
-
-    .metric-label {
-      color: #9ca3af;
-      margin-bottom: 2px;
-    }
-
-    .metric-value {
-      font-weight: 600;
-      color: #e5e7eb;
-    }
-
-    .hero-note {
-      font-size: 0.78rem;
-      color: #9ca3af;
-      border-top: 1px dashed rgba(55, 65, 81, 0.8);
-      padding-top: 10px;
+    .stores {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
       margin-top: 6px;
     }
-
-    @media (max-width: 768px) {
-      main { grid-template-columns: minmax(0, 1fr); }
-      .store-grid { grid-template-columns: minmax(0, 1fr); }
+    .store {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border-radius: 12px;
+      padding: 10px 12px;
+      border: 1px solid rgba(248, 113, 113, 0.6);
+      background: rgba(15, 23, 42, 0.95);
+      transition: transform 120ms ease-out, box-shadow 120ms ease-out, border-color 120ms ease-out;
+      font-size: 0.85rem;
+    }
+    .store:hover {
+      transform: translateY(-2px);
+      border-color: rgba(239, 68, 68, 0.95);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.9);
+    }
+    .store strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+    .hint {
+      margin-top: 14px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.75rem;
+      color: #e5e7eb;
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="shell">
     <header>
-      <div class="brand">
-        <div class="brand-logo">
-          <img src="ICON.jpg" alt="Logo Multishow" />
-        </div>
-        <div class="brand-text">
-          <h1>Relatório de vendas Art Pão - Multishow</h1>
-          <p>Selecione a loja para acessar os relatórios gerados a partir dos arquivos CSV.</p>
-        </div>
+      <div class="logo">
+        <img src="ICON.jpg" alt="Logo Multishow" />
       </div>
-      <span class="tag">Beta • seleção de loja</span>
+      <div class="title">
+        <h1>Relatórios de vendas Art Pão - Multishow</h1>
+        <p>Selecione a loja para abrir os relatórios.</p>
+      </div>
     </header>
 
     <main>
-      <section aria-label="Seleção de loja">
-        <h2 class="intro-title">
-          Escolha a <span>loja</span> para visualizar os relatórios.
-        </h2>
-        <p class="intro-subtitle">
-          Cada loja possui sua própria página de relatórios, que consolida as vendas por produto a partir de arquivos de>mes_2025_loja.csv</code>.
-        </p>
+      <h2>Escolha a loja</h2>
+      <p>Cada loja usa seus próprios arquivos CSV mensais para montar os relatórios de vendas por produto.</p>
 
-        <div class="badge-row">
-          <span class="badge">Fonte de dados: CSV</span>
-          <span class="badge">Interface responsiva</span>
-        </div>
+      <div class="stores">
+        <a class="store" href="loja-aracas.html">
+          <strong>Loja Araçás</strong>
+          Relatórios por produto usando arquivos de>*_2025_aracas.csv</code>.
+        </a>
 
-        <div class="store-grid">
-          <a class="store-card" href="loja-aracas.html">
-            <div class="store-name">Loja Araçás</div>
-            <div class="store-meta">
-              Relatórios por produto e período (setembro, outubro, novembro e meses futuros).
-            </div>
-            <div class="store-cta">
-              Acessar relatórios
-              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M5 10h8M10 5l5 5-5 5"
-                      stroke="currentColor" stroke-width="1.6"
-                      stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-          </a>
+        <a class="store" href="loja-ilha.html">
+          <strong>Lojas Ilha dos Bentos</strong>
+          Relatórios por produto usando arquivos de>*_2025_ilha.csv</code>.
+        </a>
+      </div>
 
-          <a class="store-card" href="loja-ilha.html">
-            <div class="store-name">Lojas Ilha dos Bentos</div>
-            <div class="store-meta">
-              Usa arquivos setembro_2025_ilha.csv, outubro_2025_ilha.csv, novembro_2025_ilha.csv, etc.
-            </div>
-            <div class="store-cta">
-              Acessar relatórios
-              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="M5 10h8M10 5l5 5-5 5"
-                      stroke="currentColor" stroke-width="1.6"
-                      stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </div>
-          </a>
-        </div>
-
-        <p class="hint">
-          Mantenha os arquivos CSV na mesma pasta destas páginas, seguindo o padrão
-          de>mes_2025_nome_da_loja.csv</code>.
-        </p>
-      </section>
-
-      <aside class="hero-card" aria-label="Resumo do sistema">
-        <div class="hero-pill">• Visão geral do painel</div>
-        <div class="hero-metrics">
-          <div class="metric">
-            <div class="metric-label">Lojas configuradas</div>
-            <div class="metric-value">2 unidades</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Origem dos dados</div>
-            <div class="metric-value">Arquivos CSV mensais</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Atualização</div>
-            <div class="metric-value">Conforme novos CSV</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Tecnologia</div>
-            <div class="metric-value">HTML, CSS e JavaScript</div>
-          </div>
-        </div>
-        <p class="hero-note">
-          Ao clicar em cada loja, você será direcionado para a página específica,
-          onde os arquivos CSV daquela unidade são carregados e transformados em relatórios.
-        </p>
-      </aside>
+      <p class="hint">
+        Mantenha os arquivos CSV na mesma pasta destas páginas, com nomes como
+        de>setembro_2025_ilha.csv</code> e de>outubro_2025_ilha.csv</code>.
+      </p>
     </main>
   </div>
 </body>
