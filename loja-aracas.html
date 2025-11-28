@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Loja Araçás – Relatórios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #f97373, #111827 55%, #020617);
+      color: #e5e7eb;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .shell {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 20px 22px 26px;
+      box-shadow: 0 22px 55px rgba(15, 23, 42, 0.95);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .title-block h1 { font-size: 1.25rem; margin-bottom: 4px; }
+    .title-block p { font-size: 0.85rem; color: #9ca3af; }
+    a.voltar {
+      font-size: 0.8rem;
+      color: #fecaca;
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: rgba(127,29,29,0.4);
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1.5fr 1.2fr;
+      gap: 18px;
+    }
+    @media (max-width: 960px) {
+      main { grid-template-columns: 1fr; }
+    }
+    section {
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: rgba(15,23,42,0.9);
+      padding: 14px 14px 16px;
+    }
+    section h2 { font-size: 1rem; margin-bottom: 8px; }
+    section h3 { font-size: 0.9rem; margin: 10px 0 4px; }
+    .summary { font-size: 0.8rem; color: #9ca3af; margin-bottom: 8px; }
+    .top-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .mes-select-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    select {
+      font: inherit;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(248,113,113,0.7);
+      background: #111827;
+      color: #e5e7eb;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+      margin: 6px 0 10px;
+    }
+    .filter-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+    }
+    .chip {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: #9ca3af;
+    }
+    .table-wrapper {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .table-wrapper-produtos {
+      max-height: 720px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    th, td {
+      padding: 4px 6px;
+      border-bottom: 1px solid rgba(31,41,55,0.9);
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 600;
+      color: #e5e7eb;
+      background: rgba(17,24,39,0.9);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tbody tr:nth-child(odd) { background: rgba(17,24,39,0.55); }
+    tbody tr:nth-child(even) { background: rgba(15,23,42,0.55); }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-block">
+        <h1>Loja Araçás – Relatórios de vendas</h1>
+        <p>Selecione um mês para visualizar o relatório de vendas da loja Araçás.</p>
+      </div>
+      <a href="index.html" class="voltar">← Voltar para seleção de loja</a>
+    </header>
+
+    <main>
+      <section>
+        <div class="top-row">
+          <h2>Vendas por produto</h2>
+          <div class="mes-select-group">
+            <span>Mês:</span>
+            <select id="mesSelect"></select>
+          </div>
+        </div>
+
+        <p class="summary" id="resumoLoja">Selecione um mês para carregar os dados.</p>
+
+        <div class="filter-row">
+          <span>Filtro:</span>
+          <label>
+            <input type="radio" name="filtroVenda" value="todos" checked />
+            Todos
+          </label>
+          <label>
+            <input type="radio" name="filtroVenda" value="com-venda" />
+            Apenas com vendas
+          </label>
+          <label>
+            <input type="radio" name="filtroVenda" value="sem-venda" />
+            Sem vendas
+          </label>
+        </div>
+
+        <div class="chips" id="chipsInfo"></div>
+
+        <div class="table-wrapper table-wrapper-produtos">
+          <table id="tabelaTodos">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th>Preço</th>
+                <th>Quant. Entrada</th>
+                <th>Quant. Saídas</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section>
+        <h2>Rankings (Top / Bottom 10)</h2>
+        <p class="summary">Calculados com base no mês selecionado.</p>
+
+        <h3>10 mais vendidos em valor</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="topValor">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Vlr Saídas (R$)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 mais vendidos em quantidade</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="topQtd">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Qtd Saídas</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 menos vendidos em valor</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="bottomValor">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Vlr Saídas (R$)</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>10 menos vendidos em quantidade</h3>
+        <div class="table-wrapper" style="max-height:150px;">
+          <table id="bottomQtd">
+            <thead>
+              <tr><th>#</th><th>Descrição</th><th>Qtd Saídas</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // arquivos CSV da loja Araçás
+    const arquivosPorMes = {
+      "setembro_2025": "setembro_2025_aracas.csv",
+      "outubro_2025": "outubro_2025_aracas.csv",
+      "novembro_2025": "novembro_2025_aracas.csv"
+    };
+
+    const labelMes = chave => {
+      const [mes, ano] = chave.split("_");
+      const nomes = {
+        janeiro: "Janeiro", fevereiro: "Fevereiro", marco: "Março",
+        abril: "Abril", maio: "Maio", junho: "Junho",
+        julho: "Julho", agosto: "Agosto", setembro: "Setembro",
+        outubro: "Outubro", novembro: "Novembro", dezembro: "Dezembro"
+      };
+      return (nomes[mes] || mes) + " " + ano;
+    };
+
+    function parseNumeroBr(valor) {
+      if (!valor) return 0;
+      const limpo = valor.toString().trim().replace(/\./g, "").replace(",", ".");
+      const n = parseFloat(limpo);
+      return isNaN(n) ? 0 : n;
+    }
+
+    // CSV com separador ';'
+    function parseCSV(texto) {
+      const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
+      if (!linhas.length) return [];
+      const sep = ";";
+      const cab = linhas[0]
+        .split(sep)
+        .map(c => c.trim().replace(/^"|"$/g, ""));
+      return linhas.slice(1).map(l => {
+        if (!l.trim()) return {};
+        const cols = l.split(sep);
+        const obj = {};
+        cab.forEach((nome, i) => {
+          const valor = (cols[i] || "").trim().replace(/^"|"$/g, "");
+          obj[nome] = valor;
+        });
+        return obj;
+      });
+    }
+
+    async function carregarArquivo(nome) {
+      const resp = await fetch(nome);
+      if (!resp.ok) throw new Error("Erro ao carregar " + nome);
+      const texto = await resp.text();
+      return { nome, conteudo: texto };
+    }
+
+    // Cabeçalho esperado: Descrição;Qtd Entr;Vlr Entr;Qtd Saídas;Vlr Saídas;R$ Atual
+    function consolidarProdutosDeUmArquivo(dadoArquivo) {
+      const mapa = new Map();
+      const linhas = parseCSV(dadoArquivo.conteudo);
+
+      linhas.forEach(linha => {
+        const desc = (linha["Descrição"] || linha["Descricao"] || "").trim();
+        if (!desc) return;
+
+        const qtdEntr   = parseNumeroBr(linha["Qtd Entr"]);
+        const qtdSaidas = parseNumeroBr(linha["Qtd Saídas"]);
+        const vlrSaidas = parseNumeroBr(linha["Vlr Saídas"]);
+        const precoAtual = parseNumeroBr(linha["R$ Atual"]);
+
+        const chave = "|" + desc;
+        if (!mapa.has(chave)) {
+          mapa.set(chave, {
+            descricao: desc,
+            qtdEntr: 0,
+            qtdSaidas: 0,
+            vlrSaidas: 0,
+            precoAtual: precoAtual || 0
+          });
+        }
+        const p = mapa.get(chave);
+        p.qtdEntr   += qtdEntr;
+        p.qtdSaidas += qtdSaidas;
+        p.vlrSaidas += vlrSaidas;
+        if (!p.precoAtual && precoAtual) p.precoAtual = precoAtual;
+      });
+
+      return Array.from(mapa.values());
+    }
+
+    function formatNumeroBr(n) {
+      return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    const mesSelect = document.getElementById("mesSelect");
+    const resumoLoja = document.getElementById("resumoLoja");
+    const chipsInfo = document.getElementById("chipsInfo");
+    const tabelaTodosBody = document.querySelector("#tabelaTodos tbody");
+    const topValorBody = document.querySelector("#topValor tbody");
+    const topQtdBody = document.querySelector("#topQtd tbody");
+    const bottomValorBody = document.querySelector("#bottomValor tbody");
+    const bottomQtdBody = document.querySelector("#bottomQtd tbody");
+
+    let produtosBase = [];
+
+    function preencherTabela(lista) {
+      tabelaTodosBody.innerHTML = "";
+      lista.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${p.descricao}</td>
+          <td>${formatNumeroBr(p.precoAtual)}</td>
+          <td>${formatNumeroBr(p.qtdEntr)}</td>
+          <td>${formatNumeroBr(p.qtdSaidas)}</td>
+          <td>${formatNumeroBr(p.vlrSaidas)}</td>
+        `;
+        tabelaTodosBody.appendChild(tr);
+      });
+    }
+
+    function preencherRanking(tbody, lista, campo, asc) {
+      tbody.innerHTML = "";
+      const ordenado = [...lista].sort((a, b) =>
+        asc ? a[campo] - b[campo] : b[campo] - a[campo]
+      );
+      const top10 = ordenado.slice(0, 10);
+      top10.forEach((p, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${p.descricao}</td>
+          <td>${campo === "qtdSaidas"
+            ? formatNumeroBr(p.qtdSaidas)
+            : formatNumeroBr(p.vlrSaidas)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function aplicarFiltro() {
+      const valor = document.querySelector('input[name="filtroVenda"]:checked').value;
+      let lista = produtosBase;
+      if (valor === "com-venda") {
+        lista = produtosBase.filter(p => p.vlrSaidas > 0 || p.qtdSaidas > 0);
+      } else if (valor === "sem-venda") {
+        lista = produtosBase.filter(p => p.vlrSaidas === 0 && p.qtdSaidas === 0);
+      }
+      preencherTabela(lista);
+    }
+
+    Array.from(document.querySelectorAll('input[name="filtroVenda"]')).forEach(r => {
+      r.addEventListener("change", aplicarFiltro);
+    });
+
+    async function carregarMes(chaveMes) {
+      const arquivo = arquivosPorMes[chaveMes];
+      if (!arquivo) return;
+
+      resumoLoja.textContent = "Carregando dados de " + labelMes(chaveMes) + "...";
+
+      try {
+        const dado = await carregarArquivo(arquivo);
+        produtosBase = consolidarProdutosDeUmArquivo(dado);
+
+        const total = produtosBase.length;
+        const comVenda = produtosBase.filter(p => p.vlrSaidas > 0 || p.qtdSaidas > 0).length;
+        const semVenda = total - comVenda;
+        const somaVlr = produtosBase.reduce((acc, p) => acc + p.vlrSaidas, 0);
+
+        resumoLoja.textContent =
+          `Mês: ${labelMes(chaveMes)} • Arquivo: ${arquivo} • ` +
+          `${total} produtos, ${comVenda} com vendas e ${semVenda} sem vendas.`;
+
+        chipsInfo.innerHTML = `
+          <span class="chip">Total produtos: ${total}</span>
+          <span class="chip">Com vendas: ${comVenda}</span>
+          <span class="chip">Sem vendas: ${semVenda}</span>
+          <span class="chip">Total em vendas (R$): ${formatNumeroBr(somaVlr)}</span>
+        `;
+
+        aplicarFiltro();
+
+        preencherRanking(
+          topValorBody,
+          produtosBase.filter(p => p.vlrSaidas > 0),
+          "vlrSaidas",
+          false
+        );
+        preencherRanking(
+          topQtdBody,
+          produtosBase.filter(p => p.qtdSaidas > 0),
+          "qtdSaidas",
+          false
+        );
+        preencherRanking(
+          bottomValorBody,
+          produtosBase.filter(p => p.vlrSaidas > 0),
+          "vlrSaidas",
+          true
+        );
+        preencherRanking(
+          bottomQtdBody,
+          produtosBase.filter(p => p.qtdSaidas > 0),
+          "qtdSaidas",
+          true
+        );
+      } catch (err) {
+        console.error(err);
+        resumoLoja.textContent =
+          "Erro ao carregar " + arquivo +
+          ". Verifique se o arquivo está na mesma pasta que esta página.";
+      }
+    }
+
+    (function init() {
+      Object.keys(arquivosPorMes).forEach(chave => {
+        const opt = document.createElement("option");
+        opt.value = chave;
+        opt.textContent = labelMes(chave);
+        mesSelect.appendChild(opt);
+      });
+
+      const primeiraChave = Object.keys(arquivosPorMes)[0];
+      if (primeiraChave) {
+        mesSelect.value = primeiraChave;
+        carregarMes(primeiraChave);
+      }
+
+      mesSelect.addEventListener("change", () => {
+        const chave = mesSelect.value;
+        if (chave) carregarMes(chave);
+      });
+    })();
+  </script>
+</body>
+</html>
