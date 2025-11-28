@@ -113,6 +113,10 @@
       border-radius: 10px;
       margin-top: 4px;
     }
+    /* vendas por produto: altura dobrada */
+    .table-wrapper-produtos {
+      max-height: 720px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -176,7 +180,7 @@
 
         <div class="chips" id="chipsInfo"></div>
 
-        <div class="table-wrapper">
+        <div class="table-wrapper table-wrapper-produtos">
           <table id="tabelaTodos">
             <thead>
               <tr>
@@ -416,10 +420,34 @@
         `;
 
         aplicarFiltro();
-        preencherRanking(topValorBody, produtosBase.filter(p => p.vlrSaidas > 0), "vlrSaidas", false);
-        preencherRanking(topQtdBody, produtosBase.filter(p => p.qtdSaidas > 0), "qtdSaidas", false);
-        preencherRanking(bottomValorBody, produtosBase, "vlrSaidas", true);
-        preencherRanking(bottomQtdBody, produtosBase, "qtdSaidas", true);
+
+        // Top 10 mais vendidos
+        preencherRanking(
+          topValorBody,
+          produtosBase.filter(p => p.vlrSaidas > 0),
+          "vlrSaidas",
+          false
+        );
+        preencherRanking(
+          topQtdBody,
+          produtosBase.filter(p => p.qtdSaidas > 0),
+          "qtdSaidas",
+          false
+        );
+
+        // 10 menos vendidos (somente itens com venda > 0)
+        preencherRanking(
+          bottomValorBody,
+          produtosBase.filter(p => p.vlrSaidas > 0),
+          "vlrSaidas",
+          true
+        );
+        preencherRanking(
+          bottomQtdBody,
+          produtosBase.filter(p => p.qtdSaidas > 0),
+          "qtdSaidas",
+          true
+        );
       } catch (err) {
         console.error(err);
         resumoLoja.textContent =
