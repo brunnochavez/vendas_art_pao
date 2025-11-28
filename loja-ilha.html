@@ -241,7 +241,7 @@
   </div>
 
   <script>
-    // nomes exatos dos CSV já publicados
+    // nomes dos arquivos CSV da loja Ilha
     const arquivosPorMes = {
       "setembro_2025": "setembro_2025_ilha.csv",
       "outubro_2025": "outubro_2025_ilha.csv",
@@ -266,7 +266,6 @@
       return isNaN(n) ? 0 : n;
     }
 
-    // CSV com vírgula e aspas
     function parseCSV(texto) {
       const linhas = texto.split(/\r?\n/).filter(l => l.trim() !== "");
       if (!linhas.length) return [];
@@ -293,18 +292,22 @@
       return { nome, conteudo: texto };
     }
 
-    // cabeçalho real: Descrição,QTd Entr,Vlr Entr,Vlr Saídas,R$ Atual
+    // Cabeçalho: Descrição, Qtd Entr, Vlr Entr, Qtd Saídas, Vlr Saídas, R$ Atual
     function consolidarProdutosDeUmArquivo(dadoArquivo) {
       const mapa = new Map();
       const linhas = parseCSV(dadoArquivo.conteudo);
+
       linhas.forEach(linha => {
         const desc = (linha["Descrição"] || linha["Descricao"] || "").trim();
         if (!desc) return;
-        const codigo = "";
-        const qtdEntr   = parseNumeroBr(linha["QTd Entr"] || linha["QTD Entr"] || linha["Qtd Entr"]);
-        const vlrSaidas = parseNumeroBr(linha["Vlr Saídas"] || linha["Vlr Saidas"]);
-        const precoAtual = parseNumeroBr(linha["R$ Atual"] || linha["R$ Atual "]);
-        const chave = codigo + "|" + desc;
+
+        const codigo = (linha["Código"] || linha["Codigo"] || "").trim();
+        const qtdEntr   = parseNumeroBr(linha["Qtd Entr"]);
+        const qtdSaidas = parseNumeroBr(linha["Qtd Saídas"]);
+        const vlrSaidas = parseNumeroBr(linha["Vlr Saídas"]);
+        const precoAtual = parseNumeroBr(linha["R$ Atual"]);
+
+        const chave = (codigo || "") + "|" + desc;
         if (!mapa.has(chave)) {
           mapa.set(chave, {
             codigo,
@@ -317,9 +320,11 @@
         }
         const p = mapa.get(chave);
         p.qtdEntr   += qtdEntr;
+        p.qtdSaidas += qtdSaidas;
         p.vlrSaidas += vlrSaidas;
         if (!p.precoAtual && precoAtual) p.precoAtual = precoAtual;
       });
+
       return Array.from(mapa.values());
     }
 
@@ -377,9 +382,9 @@
       const valor = document.querySelector('input[name="filtroVenda"]:checked').value;
       let lista = produtosBase;
       if (valor === "com-venda") {
-        lista = produtosBase.filter(p => p.vlrSaidas > 0);
+        lista = produtosBase.filter(p => p.qtdSaidas > 0 || p.vlrSaidas > 0);
       } else if (valor === "sem-venda") {
-        lista = produtosBase.filter(p => p.vlrSaidas === 0);
+        lista = produtosBase.filter(p => p.qtdSaidas === 0 && p.vlrSaidas === 0);
       }
       preencherTabela(lista);
     }
@@ -391,26 +396,33 @@
     async function carregarMes(chaveMes) {
       const arquivo = arquivosPorMes[chaveMes];
       if (!arquivo) return;
+
       resumoLoja.textContent = "Carregando dados de " + labelMes(chaveMes) + "...";
+
       try {
         const dado = await carregarArquivo(arquivo);
         produtosBase = consolidarProdutosDeUmArquivo(dado);
+
         const total = produtosBase.length;
-        const comVenda = produtosBase.filter(p => p.vlrSaidas > 0).length;
+        const comVenda = produtosBase.filter(p => p.vlrSaidas > 0 || p.qtdSaidas > 0).length;
         const semVenda = total - comVenda;
         const somaVlr = produtosBase.reduce((acc, p) => acc + p.vlrSaidas, 0);
+
         resumoLoja.textContent =
           `Mês: ${labelMes(chaveMes)} • Arquivo: ${arquivo} • ` +
           `${total} produtos, ${comVenda} com vendas e ${semVenda} sem vendas.`;
+
         chipsInfo.innerHTML = `
           <span class="chip">Total produtos: ${total}</span>
           <span class="chip">Com vendas: ${comVenda}</span>
           <span class="chip">Sem vendas: ${semVenda}</span>
           <span class="chip">Total em vendas (R$): ${formatNumeroBr(somaVlr)}</span>
         `;
+
         aplicarFiltro();
+
         preencherRanking(topValorBody, produtosBase.filter(p => p.vlrSaidas > 0), "vlrSaidas", false);
-        preencherRanking(topQtdBody, produtosBase, "qtdSaidas", false);
+        preencherRanking(topQtdBody, produtosBase.filter(p => p.qtdSaidas > 0), "qtdSaidas", false);
         preencherRanking(bottomValorBody, produtosBase, "vlrSaidas", true);
         preencherRanking(bottomQtdBody, produtosBase, "qtdSaidas", true);
       } catch (err) {
@@ -428,11 +440,13 @@
         opt.textContent = labelMes(chave);
         mesSelect.appendChild(opt);
       });
+
       const primeiraChave = Object.keys(arquivosPorMes)[0];
       if (primeiraChave) {
         mesSelect.value = primeiraChave;
         carregarMes(primeiraChave);
       }
+
       mesSelect.addEventListener("change", () => {
         const chave = mesSelect.value;
         if (chave) carregarMes(chave);
